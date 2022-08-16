@@ -1,10 +1,12 @@
+
 import mido
 
-names = mido.get_input_names()
-print(names)
-out_port = mido.open_output()
-
-inport = mido.open_input(names[1])
-msg = inport.receive()
-
-print(msg)
+instrument = mido.get_input_names()
+print(instrument)
+inport = mido.open_input(instrument[2])
+events = []
+while True:
+    msg = inport.receive()
+    events.append(msg)
+    print(events)
+    events = []
