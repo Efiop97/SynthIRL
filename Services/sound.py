@@ -3,7 +3,8 @@ from math import pi
 import numpy as np
 import midi
 
-CHUNK = 2**5
+
+CHUNK = 1024
 RATE = 44100
 LEN = 10
 
@@ -22,24 +23,31 @@ def make_sinewave(frequency, length, sample_rate=RATE):
 def playSound():
     return
 
-
-while True:
-    stream = p.open(format=pyaudio.paFloat32, channels=1, rate=RATE, output=True, input=True, frames_per_buffer=CHUNK)
-    event = midi.midiListener(port)
-    wave = make_sinewave(500, 0.5)
-    empty_wave = make_sinewave(0, 0)
-    data = wave.astype(np.float32).tobytes()
-    empty_data = empty_wave.astype(np.float32).tobytes()
-
+event = midi.midiListener(port)
+for e in event:
     if midi.noteOn(event):
-        while True:
-            stream.write(data)
-            if midi.noteOff(event):
-                stream.stop_stream()
-                break
-            
+        print("on")
 
-    # if midi.noteOff(event):
+
+
+# while True:
+#     stream = p.open(format=pyaudio.paFloat32, channels=1, rate=RATE, output=True,  frames_per_buffer=CHUNK)
+#     event = midi.midiListener(port)
+#     wave = make_sinewave(500, 1)
+#     data = wave.astype(np.float32).tobytes()
+
+#     while midi.noteOn(event):
+#             event = midi.midiListener(port)
+#             stream.write(data,)
+#             if not midi.noteOn(event):
+#                 stream.stop_stream()
+#                 stream.close()
+#                 break
+
+
+        
+
+
 
  
 
