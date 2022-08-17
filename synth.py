@@ -4,5 +4,3 @@ import Services.services as sv
 
 
 
-def main():
-
