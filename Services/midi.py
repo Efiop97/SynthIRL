@@ -1,23 +1,41 @@
 import mido
 import re
 
+from sqlalchemy import null
+
+
 
 def midiConnect(portnum):
     instrument  = mido.get_input_names()
     inport = mido.open_input(instrument[portnum])
     return inport
 
+def checkMidiConnection(inport):
+    if str(inport) is not null:
+        connected = True
+    else:
+        connected = False
+    return connected
+
 def getMidinote(msg):
-    note = re.search('note=(...)', str(msg)).group(1)
-    return int(note)
+    try:
+        note = re.search('.note=(...)', str(msg)).group(1)
+        return int(note)
+    except AttributeError as err:
+        return 0
+  
+
+
 
 def getVolocity(msg):
-    velo = re.search('velocity=(..)', str(msg)).group(1)
-    return int(velo)
+    try:
+        velo = re.search('.velocity=(..)', str(msg)).group(1)
+        return int(velo)
+    except AttributeError as err:
+        return 0
 
 def noteOn(msg):
-    note_on = False
-    press = re.search("note_on", str(msg))
+    press = re.search(".note_on", str(msg))
     if press:
         note_on = True
     else:
@@ -26,9 +44,12 @@ def noteOn(msg):
 
 def noteOff(msg):
     note_off = True
-    press = re.search("note_off", str(msg))
-    if press:
+    press = re.search(".note_off", str(msg))
+    vel = press = re.search(".velocity=0", str(msg))
+    if press or vel:
         note_off = True
+    else:
+        note_off = False
     return note_off
 
 def noteToFreq(note):
@@ -37,28 +58,33 @@ def noteToFreq(note):
 
 def midiListener(inport):
     msg = inport.receive()
-    return msg
+    return [str(msg)]
 
 def cc_number_value(msg):
-    control = re.search("control=(..)", str(msg)).group(1)
-    val = re.search('value=(..)', str(msg)).group(1)
-    cc = (control, val)
-    return cc
+    try:
+        control = re.search(".control=(..)", str(msg)).group(1)
+        val = re.search('.value=(..)', str(msg)).group(1)
+        cc = (control, val)
+        return cc
+    except AttributeError as err:
+        return 0
 
 def cc_change(msg):
     control_change = False
-    chnage = re.search("control_change", str(msg))
+    chnage = re.search(".control_change", str(msg))
     if chnage:
         control_change = True
     return control_change
 
 
-# port = midiConnect(2)
+# port = midiConnect(0)
 # while True:
 #     event = midiListener(port)
-#     # print(event)
+#     note = getMidinote(event)
 #     if noteOn(event):
-#         note = getMidinote(event)
+#         freq = noteToFreq(note)
+#         print(note, freq)
+#     if noteOff(event):
 #         print(event)
 #     elif cc_change(event):
 #         cc = cc_number_value(event)
